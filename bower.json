@@ -1,0 +1,15 @@
+{
+  "name": "3mber",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "caboose": "~2.6.0",
+    "ember": "~1.1.2",
+    "ember-model": "~0.0.10",
+    "modernizr": "~2.6.3"
+  },
+  "resolutions": {
+    "ember": "~1.1.2"
+  }
+}
