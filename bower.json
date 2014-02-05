@@ -8,7 +8,8 @@
     "ember": "~1.1.2",
     "ember-model": "~0.0.10",
     "modernizr": "~2.6.3",
-    "tweenjs": "*"
+    "tweenjs": "*",
+    "threejs": "*"
   },
   "resolutions": {
     "ember": "~1.1.2"

@@ -2,6 +2,9 @@ App.ApplicationRoute = Ember.Route.extend({
     setupController: function (controller, model) {
         controller.set('content', model);
     },
+    renderTemplate: function () {
+        this.render();
+    },
     model: function () {
         return [
                 "H", "Hydrogen", "1.00794", 1, 1,

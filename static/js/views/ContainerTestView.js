@@ -1,4 +1,4 @@
-App.ApplicationView = Ember.ContainerView.extend({
+App.ContainerTestView = Ember.ContainerView.extend(App.CSS3DRenderer, {
 
     controls: null,
     camera: null,
@@ -13,7 +13,6 @@ App.ApplicationView = Ember.ContainerView.extend({
         this.targets = {table: [], sphere: [], helix: [], grid: []};
         this.set('camera', new App.three.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000));
         this.get('camera').position.z = 3000;
-
         this.set('scene', new App.three.Scene());
     },
 
@@ -23,41 +22,41 @@ App.ApplicationView = Ember.ContainerView.extend({
         var scene = this.get("scene");
         var targets = this.get("targets");
         var camera = this.get("camera");
+        var that = this;
+
         for (var i = 0; i < table.length; i += 5) {
 
-            var element = document.createElement('div');
-            element.className = 'element';
-            element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')';
+            var contextObject = Ember.Object.create({
+                number: (i + 1),
+                symbol: table[i],
+                details: table[i + 1],
+                detailsNumber: table[i + 2]
+            });
 
-            var number = document.createElement('div');
-            number.className = 'number';
-            number.textContent = i + 1;
-            element.appendChild(number);
+            var CSS3DView = App.CSS3DObjectView.create({
+                classNames: ['element'],
+                templateName: 'element',
+                controller: contextObject,
+                click: function (e) {
+                    that.removeObject(this);
+                }
+            });
 
-            var symbol = document.createElement('div');
-            symbol.className = 'symbol';
-            symbol.textContent = table[i];
-            element.appendChild(symbol);
 
-            var details = document.createElement('div');
-            details.className = 'details';
-            details.innerHTML = table[i + 1] + '<br>' + table[i + 2];
-            element.appendChild(details);
+            CSS3DView.position.x = Math.random() * 4000 - 2000;
+            CSS3DView.position.y = Math.random() * 4000 - 2000;
+            CSS3DView.position.z = Math.random() * 4000 - 2000;
+            scene.add(CSS3DView);
+            objects.pushObject(CSS3DView);
 
-            var css3dObject = App.CSS3DObjectView.create(element);
-            css3dObject.position.x = Math.random() * 4000 - 2000;
-            css3dObject.position.y = Math.random() * 4000 - 2000;
-            css3dObject.position.z = Math.random() * 4000 - 2000;
-            scene.add(css3dObject);
-            objects.pushObject(css3dObject);
+            console.log(CSS3DView.position);
 
-            //
+            // var object = new App.three.Object3D();
+            // object.position.x = (table[i + 3] * 140) - 1330;
+            // object.position.y = - (table[i + 4] * 180) + 990;
 
-            var object = new App.three.Object3D();
-            object.position.x = (table[i + 3] * 140) - 1330;
-            object.position.y = - (table[i + 4] * 180) + 990;
-
-            targets.table.push(object);
+            // targets.table.pushObject(CSS3DView);
+            this.pushObject(CSS3DView);
 
         }
 
@@ -124,19 +123,16 @@ App.ApplicationView = Ember.ContainerView.extend({
 
         //
 
-        var renderer = new App.CSS3DRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        $(renderer.get('domElement')).css({position: 'absolute'});
 
-        this.pushObject(renderer);
+        var renderer = $(this.get('domElement'));
+        this.setSize(window.innerWidth, window.innerHeight);
+        renderer.css({position: 'absolute'});
 
-
-
-        var controls = new App.three.TrackballControls(camera, renderer.domElement);
-        controls.rotateSpeed = 0.5;
-        controls.minDistance = 500;
-        controls.maxDistance = 6000;
-        controls.addEventListener('change', this.render);
+        // var controls = new App.three.TrackballControls(camera, renderer);
+        // controls.rotateSpeed = 0.5;
+        // controls.minDistance = 500;
+        // controls.maxDistance = 6000;
+        // controls.addEventListener('change', this.render);
 
 
         this.transform(targets.table, 5000);

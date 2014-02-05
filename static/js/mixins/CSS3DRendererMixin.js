@@ -1,25 +1,10 @@
-App.CSS3DObjectView = Ember.View.extend({
-    init: function () {
-        this._super();
-        App.three.Object3D.call(this);
-    }
-});
-
-App.CSS3DBaseView = Ember.Mixin.create({
-
-});
-
-App.CSS3DRenderer = Ember.View.extend({
-    init: function () {
-        this._super();
-    },
+App.CSS3DRenderer = Ember.Mixin.create({
     createThreeData: function () {
         console.log('THREE.CSS3DRenderer', THREE.REVISION);
 
         var _width, _height;
         var _widthHalf, _heightHalf;
 
-        console.log('this$', this.element);
         this.set("matrix", new THREE.Matrix4());
         this.$().css({
             overflow: 'hidden',
@@ -44,6 +29,7 @@ App.CSS3DRenderer = Ember.View.extend({
 
         this.$().append(cameraElement);
         this.set('cameraElement', cameraElement);
+
     }.on('didInsertElement'),
     setSize: function (width, height) {
         var _width, _height, _widthHalf, _heightHalf;
@@ -68,7 +54,7 @@ App.CSS3DRenderer = Ember.View.extend({
             height: height + 'px'
         });
     },
-    episilon: function (value) {
+    epsilon: function (value) {
         return Math.abs(value) < 0.000001 ? 0 : value;
     },
     getCameraCSSMatrix: function (matrix) {
@@ -117,7 +103,7 @@ App.CSS3DRenderer = Ember.View.extend({
         ')';
     },
     renderObject: function (object, camera) {
-        if (object instanceof THREE.CSS3DObject) {
+        if (object instanceof App.CSS3DObjectView) {
 
             var cameraElement = this.get('cameraElement');
             var style;
@@ -160,13 +146,17 @@ App.CSS3DRenderer = Ember.View.extend({
         var scene = this.get("scene"), camera = this.get("camera");
         var fov = 0.5 / Math.tan(THREE.Math.degToRad(camera.fov * 0.5)) * this.get('height');
 
-        var cameraElement = this.get("cameraElement"),
-            domElement = this.$()[0];
+        var cameraElement = $(this.get("cameraElement")),
+            domElement = $(this.element);
 
-        domElement.style.WebkitPerspective = fov + "px";
-        domElement.style.MozPerspective = fov + "px";
-        domElement.style.oPerspective = fov + "px";
-        domElement.style.perspective = fov + "px";
+        console.log(domElement);
+
+        domElement.css({
+            WebkitPerspective: fov + 'px',
+            MozPerspective: fov + 'px',
+            oPerspective: fov + 'px',
+            perspective: fov + 'px'
+        });
 
         scene.updateMatrixWorld();
 
@@ -179,10 +169,12 @@ App.CSS3DRenderer = Ember.View.extend({
         var style = "translate3d(0,0," + fov + "px)" + this.getCameraCSSMatrix(camera.matrixWorldInverse) +
             " translate3d(" + this.get('_widthHalf') + "px," + this.get('_heightHalf') + "px, 0)";
 
-        cameraElement.style.WebkitTransform = style;
-        cameraElement.style.MozTransform = style;
-        cameraElement.style.oTransform = style;
-        cameraElement.style.transform = style;
+        cameraElement.css({
+            WebkitPerspective: style,
+            MozPerspective: style,
+            oPerspective: style,
+            perspective: style
+        });
 
         this.renderObject(scene, camera);
     }
