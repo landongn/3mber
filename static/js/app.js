@@ -1,4 +1,6 @@
-var App = window.App = Ember.Application.create();
+var App = window.App = Ember.Application.create({
+    LOG_TRANSITIONS_INTERNAL: true
+});
 
 App.three = Ember.Namespace.create(window.THREE);
 

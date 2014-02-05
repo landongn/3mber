@@ -7,7 +7,8 @@
     "caboose": "~2.6.0",
     "ember": "~1.1.2",
     "ember-model": "~0.0.10",
-    "modernizr": "~2.6.3"
+    "modernizr": "~2.6.3",
+    "tweenjs": "*"
   },
   "resolutions": {
     "ember": "~1.1.2"

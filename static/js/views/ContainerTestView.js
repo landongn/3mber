@@ -1,4 +1,4 @@
-App.ApplicationView = Ember.ContainerView.extend(App.CSS3DRendererView, {
+App.ApplicationView = Ember.ContainerView.extend({
 
     controls: null,
     camera: null,
@@ -11,164 +11,173 @@ App.ApplicationView = Ember.ContainerView.extend(App.CSS3DRendererView, {
     init: function () {
         this._super();
         this.targets = {table: [], sphere: [], helix: [], grid: []};
-        this.set('camera', new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000));
+        this.set('camera', new App.three.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000));
         this.get('camera').position.z = 3000;
 
-        this.set('scene', new THREE.Scene());
+        this.set('scene', new App.three.Scene());
     },
 
     setupScene: function () {
         var table = this.get('controller').content;
-
+        var objects = this.get('objects');
+        var scene = this.get("scene");
+        var targets = this.get("targets");
+        var camera = this.get("camera");
         for (var i = 0; i < table.length; i += 5) {
 
-            var element = document.createElement( 'div' );
+            var element = document.createElement('div');
             element.className = 'element';
-            element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+            element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')';
 
-            var number = document.createElement( 'div' );
+            var number = document.createElement('div');
             number.className = 'number';
             number.textContent = i + 1;
-            element.appendChild( number );
+            element.appendChild(number);
 
-            var symbol = document.createElement( 'div' );
+            var symbol = document.createElement('div');
             symbol.className = 'symbol';
-            symbol.textContent = table[ i ];
-            element.appendChild( symbol );
+            symbol.textContent = table[i];
+            element.appendChild(symbol);
 
-            var details = document.createElement( 'div' );
+            var details = document.createElement('div');
             details.className = 'details';
-            details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
-            element.appendChild( details );
+            details.innerHTML = table[i + 1] + '<br>' + table[i + 2];
+            element.appendChild(details);
 
-            var object = new THREE.CSS3DObject( element );
-            object.position.x = Math.random() * 4000 - 2000;
-            object.position.y = Math.random() * 4000 - 2000;
-            object.position.z = Math.random() * 4000 - 2000;
-            scene.add( object );
-
-            objects.push( object );
+            var css3dObject = App.CSS3DObjectView.create(element);
+            css3dObject.position.x = Math.random() * 4000 - 2000;
+            css3dObject.position.y = Math.random() * 4000 - 2000;
+            css3dObject.position.z = Math.random() * 4000 - 2000;
+            scene.add(css3dObject);
+            objects.pushObject(css3dObject);
 
             //
 
-            var object = new THREE.Object3D();
-            object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
-            object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+            var object = new App.three.Object3D();
+            object.position.x = (table[i + 3] * 140) - 1330;
+            object.position.y = - (table[i + 4] * 180) + 990;
 
-            targets.table.push( object );
+            targets.table.push(object);
 
         }
 
         // sphere
 
-        var vector = new THREE.Vector3();
+        var vector = new App.three.Vector3();
+        var length = objects.length;
+        for (var x = 0; x < objects.length; x++) {
 
-        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+            var xphi = Math.acos(-1 + (2 * x) / length);
+            var theta = Math.sqrt(length * Math.PI) * xphi;
 
-            var phi = Math.acos( -1 + ( 2 * i ) / l );
-            var theta = Math.sqrt( l * Math.PI ) * phi;
+            var xobj = new App.three.Object3D();
 
-            var object = new THREE.Object3D();
+            xobj.position.x = 800 * Math.cos(theta) * Math.sin(xphi);
+            xobj.position.y = 800 * Math.sin(theta) * Math.sin(xphi);
+            xobj.position.z = 800 * Math.cos(xphi);
 
-            object.position.x = 800 * Math.cos( theta ) * Math.sin( phi );
-            object.position.y = 800 * Math.sin( theta ) * Math.sin( phi );
-            object.position.z = 800 * Math.cos( phi );
+            vector.copy(xobj.position).multiplyScalar(2);
 
-            vector.copy( object.position ).multiplyScalar( 2 );
+            xobj.lookAt(vector);
 
-            object.lookAt( vector );
-
-            targets.sphere.push( object );
+            targets.sphere.push(xobj);
 
         }
 
         // helix
 
-        var vector = new THREE.Vector3();
+        var yv = new App.three.Vector3();
 
-        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+        for (var y = 0; y < objects.length; y++) {
 
-            var phi = i * 0.175 + Math.PI;
+            var yphi = y * 0.175 + Math.PI;
 
-            var object = new THREE.Object3D();
+            var yobj = new App.three.Object3D();
 
-            object.position.x = 900 * Math.sin( phi );
-            object.position.y = - ( i * 8 ) + 450;
-            object.position.z = 900 * Math.cos( phi );
+            yobj.position.x = 900 * Math.sin(yphi);
+            yobj.position.y = - (y * 8) + 450;
+            yobj.position.z = 900 * Math.cos(yphi);
 
-            vector.x = object.position.x * 2;
-            vector.y = object.position.y;
-            vector.z = object.position.z * 2;
+            yv.x = yobj.position.x * 2;
+            yv.y = yobj.position.y;
+            yv.z = yobj.position.z * 2;
 
-            object.lookAt( vector );
+            yobj.lookAt(yv);
 
-            targets.helix.push( object );
+            targets.helix.push(yobj);
 
         }
 
         // grid
 
-        for ( var i = 0; i < objects.length; i ++ ) {
+        for (var z = 0; z < objects.length; z++) {
 
-            var object = new THREE.Object3D();
+            var zobject = new App.three.Object3D();
 
-            object.position.x = ( ( i % 5 ) * 400 ) - 800;
-            object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
-            object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
+            zobject.position.x = ((z % 5) * 400) - 800;
+            zobject.position.y = (-(Math.floor(z / 5) % 5) * 400) + 800;
+            zobject.position.z = (Math.floor(z / 25)) * 1000 - 2000;
 
-            targets.grid.push( object );
+            targets.grid.push(zobject);
 
         }
 
         //
 
-        renderer = new App.CSS3DRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.get('domElement').style.position = 'absolute';
-        this.$().append(renderer);
-        document.getElementById( 'container' ).appendChild( renderer.domElement );
+        var renderer = new App.CSS3DRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        $(renderer.get('domElement')).css({position: 'absolute'});
 
-        //
+        this.pushObject(renderer);
 
-        controls = new THREE.TrackballControls( camera, renderer.domElement );
+
+
+        var controls = new App.three.TrackballControls(camera, renderer.domElement);
         controls.rotateSpeed = 0.5;
         controls.minDistance = 500;
         controls.maxDistance = 6000;
-        controls.addEventListener( 'change', render );
+        controls.addEventListener('change', this.render);
 
-        var button = document.getElementById( 'table' );
-        button.addEventListener( 'click', function ( event ) {
 
-            transform( targets.table, 2000 );
+        this.transform(targets.table, 5000);
 
-        }, false );
-
-        var button = document.getElementById( 'sphere' );
-        button.addEventListener( 'click', function ( event ) {
-
-            transform( targets.sphere, 2000 );
-
-        }, false );
-
-        var button = document.getElementById( 'helix' );
-        button.addEventListener( 'click', function ( event ) {
-
-            transform( targets.helix, 2000 );
-
-        }, false );
-
-        var button = document.getElementById( 'grid' );
-        button.addEventListener( 'click', function ( event ) {
-
-            transform( targets.grid, 2000 );
-
-        }, false );
-
-        transform( targets.table, 5000 );
-
-        window.addEventListener( 'resize', onWindowResize, false );
+        window.addEventListener('resize', this.onWindowResize, false);
     },
+    transform: function (targets, duration) {
+        var objects = this.get('objects');
+        /*global TWEEN */
+        TWEEN.removeAll();
 
+        objects.forEach(function (item, index) {
+            var object = item;
+            var target = targets[index];
+
+            // new TWEEN.Tween()
+            //     .to({x: target.position.x, y: target.position.y, z: target.position.z}, Math.random() * duration + duration)
+            //     .easing(TWEEN.Easing.Exponential.InOut)
+            //     .start();
+
+            // new TWEEN.Tween()
+            //     .to({x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration)
+            //     .easing(TWEEN.Easing.Exponential.InOut)
+            //     .start();
+
+        });
+
+        var that = this;
+        new TWEEN.Tween(that)
+            .to({}, duration * 2)
+            .onUpdate(that.render)
+            .start();
+    },
+    onWindowResize: function () {
+        this.get('camera').aspect = window.innerWidth / window.innerHeight;
+        this.get('camera').updateProjectionMatrix();
+
+        this.get('renderer').setSize(window.innerWidth, window.innerHeight);
+
+        this.render();
+    },
     onDidInsertElement: function () {
         this.setupScene();
     }.on('didInsertElement')

@@ -1,19 +1,25 @@
-App.CSS3DRendererView = Ember.View.create({
+App.CSS3DObjectView = Ember.View.extend({
     init: function () {
         this._super();
         App.three.Object3D.call(this);
     }
 });
 
+App.CSS3DBaseView = Ember.Mixin.create({
+
+});
+
 App.CSS3DRenderer = Ember.View.extend({
     init: function () {
         this._super();
-
+    },
+    createThreeData: function () {
         console.log('THREE.CSS3DRenderer', THREE.REVISION);
 
         var _width, _height;
         var _widthHalf, _heightHalf;
 
+        console.log('this$', this.element);
         this.set("matrix", new THREE.Matrix4());
         this.$().css({
             overflow: 'hidden',
@@ -27,7 +33,7 @@ App.CSS3DRenderer = Ember.View.extend({
             perspectiveOrigin: '50% 50%'
         });
 
-        this.set('domElement', this.$()[0]);
+        this.set('domElement', this.element);
         this.set("cameraElement", document.createElement('div'));
 
         var cameraElement = document.createElement('div');
@@ -38,7 +44,7 @@ App.CSS3DRenderer = Ember.View.extend({
 
         this.$().append(cameraElement);
         this.set('cameraElement', cameraElement);
-    },
+    }.on('didInsertElement'),
     setSize: function (width, height) {
         var _width, _height, _widthHalf, _heightHalf;
         _width = width;
@@ -52,11 +58,15 @@ App.CSS3DRenderer = Ember.View.extend({
         this.set('_widthHalf', _widthHalf);
         this.set('_heightHalf', _heightHalf);
 
-        var domElement = this.$()[0], cameraElement = this.get("cameraElement");
-        domElement.style.width = width + 'px';
-        domElement.style.height = height + 'px';
-        cameraElement.style.width = width + 'px';
-        cameraElement.style.height = height + 'px';
+        var domElement = this.element, cameraElement = this.get("cameraElement");
+        $(this.element).css({
+            width: width + 'px',
+            height: height + 'px'
+        });
+        $(cameraElement).css({
+            width: width + 'px',
+            height: height + 'px'
+        });
     },
     episilon: function (value) {
         return Math.abs(value) < 0.000001 ? 0 : value;
@@ -146,8 +156,8 @@ App.CSS3DRenderer = Ember.View.extend({
             this.renderObject(object.children[i], camera);
         }
     },
-    render: function (scene, camera) {
-
+    render: function () {
+        var scene = this.get("scene"), camera = this.get("camera");
         var fov = 0.5 / Math.tan(THREE.Math.degToRad(camera.fov * 0.5)) * this.get('height');
 
         var cameraElement = this.get("cameraElement"),
