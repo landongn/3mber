@@ -13,6 +13,12 @@ App.CSS3DRendererView = Ember.ContainerView.extend({
     init: function () {
         this._super();
     },
+    didInsertElement: function () {
+        this.setSize(window.innerWidth, window.innerHeight);
+        this.$().css({
+            position: 'absolute'
+        });
+    },
     setSize: function (width, height) {
         var _widthHalf, _heightHalf;
         _widthHalf = width / 2;
@@ -23,17 +29,17 @@ App.CSS3DRendererView = Ember.ContainerView.extend({
         this.set('_widthHalf', _widthHalf);
         this.set('_heightHalf', _heightHalf);
 
-        var domElement = this.element, cameraElement = this.get("cameraElement");
-        $(this.element).css({
+        this.$().css({
             width: width + 'px',
             height: height + 'px'
         });
-        $(cameraElement).css({
+
+        this.camera.$().css({
             width: width + 'px',
             height: height + 'px'
         });
     },
-    episilon: function (value) {
+    epsilon: function (value) {
         return Math.abs(value) < 0.000001 ? 0 : value;
     },
     getCameraCSSMatrix: function (matrix) {
@@ -82,53 +88,29 @@ App.CSS3DRendererView = Ember.ContainerView.extend({
         ')';
     },
     renderObject: function (object, camera) {
-        if (object instanceof THREE.CSS3DObject) {
 
-            var cameraElement = this.get('cameraElement');
-            var style;
+        var style;
 
-            if (object instanceof THREE.CSS3DSprite) {
-                var matrix = this.get('matrix');
+        style = this.getObjectCSSMatrix(object.matrixWorld);
+        var element = object.$()[0];
+        element.style.WebkitTransform = style;
+        element.style.MozTransform = style;
+        element.style.oTransform = style;
+        element.style.transform = style;
 
-                matrix.copy(camera.matrixWorldInverse);
-                matrix.transpose();
-                matrix.copyPosition(object.matrixWorld);
-                matrix.scale(object.scale);
-
-                matrix.elements[3] = 0;
-                matrix.elements[7] = 0;
-                matrix.elements[11] = 0;
-                matrix.elements[15] = 1;
-
-                style = this.getObjectCSSMatrix(matrix);
-
-            } else {
-                style = this.getObjectCSSMatrix(object.matrixWorld);
-            }
-
-            var element = object.element;
-            element.style.WebkitTransform = style;
-            element.style.MozTransform = style;
-            element.style.oTransform = style;
-            element.style.transform = style;
-
-            if (element.parentNode !== cameraElement) {
-                cameraElement.appendChild(element);
-            }
-        }
 
         for (var i = 0, l = object.children.length; i < l; i ++) {
             this.renderObject(object.children[i], camera);
         }
     },
     renderScene: function () {
-        if (this.get('hasInsertedIntoDom') === false) {
-            return;
+        if (!this.get("height")) {
+            this.setSize(window.innerWidth, window.innerHeight);
         }
-        var fov = 0.5 / Math.tan(THREE.Math.degToRad(this.camera.fov * 0.5)) * this.get('height');
+        var fov = 0.5 / Math.tan(App.three.Math.degToRad(this.camera.fov * 0.5)) * this.get('height');
 
-        var cameraElement = this.camera.$()[0],
-            domElement = this.scene.$()[0];
+        var cameraElement = this.camera.$()[0];
+        var domElement = this.scene.$()[0];
 
         domElement.style.WebkitPerspective = fov + "px";
         domElement.style.MozPerspective = fov + "px";

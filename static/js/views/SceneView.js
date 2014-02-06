@@ -1,5 +1,5 @@
-App.Scene = Ember.Object.extend({
-    camera: null,
+App.Scene = Ember.ContainerView.extend({
+    classNames: ['scene-view'],
     init: function () {
         this._super();
         var scene = new App.three.Scene();
@@ -15,5 +15,8 @@ App.Scene = Ember.Object.extend({
             }
             this.set(prop, scene[prop]);
         }
+    },
+    didInsertElement: function () {
+        console.log("scene installed");
     }
 });
