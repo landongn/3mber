@@ -59,6 +59,7 @@ App.ApplicationView = Ember.ContainerView.extend({
 				detailsNumber: table[i + 2]
 			});
 
+			this.createChildView(App.PeriodicTableElementView, {controller: ctrl});
 			var view = App.PeriodicTableElementView.create({
 				controller: ctrl
 			});
@@ -112,7 +113,7 @@ App.ApplicationView = Ember.ContainerView.extend({
 				.to({}, duration * 2)
 				.onUpdate(this.renderScene)
 				.start();
-		}.bind(this.renderer), 5000);
+		}.bind(this.renderer), 1000);
 	}
 });
 
