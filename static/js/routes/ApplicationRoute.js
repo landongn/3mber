@@ -3,7 +3,7 @@ App.ApplicationRoute = Ember.Route.extend({
         controller.set('content', model);
     },
     renderTemplate: function () {
-        this.render();
+        this.render('application');
     },
     model: function () {
         return [
