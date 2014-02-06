@@ -1,6 +1,6 @@
 App.ApplicationView = Ember.ContainerView.extend({
 
-	camera: App.PerspectiveCamera.create(),
+	camera: null,
 	scene: null,
 	renderer: null,
 
